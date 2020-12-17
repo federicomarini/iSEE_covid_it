@@ -1,0 +1,67 @@
+
+# All data - t0
+
+```{r}
+library("reticulate")
+# reticulate::py_install(c("scanpy", "python-igraph", "louvain", "loompy"))
+```
+
+
+```{python, eval=FALSE}
+import scanpy as sc
+ad_processed=sc.read_h5ad("global_T0_plus_Tcells2567_nov2020.h5ad")
+ad_processed.write_csvs("global_T0_plus_Tcells2567_nov2020")
+ad_processed.write_loom("global_T0_plus_Tcells2567_nov2020/processed.loom")
+```
+
+```{r}
+library("SingleCellExperiment")
+counts_raw <- HDF5Array::HDF5Array(filepath = "global_T0_plus_Tcells2567_nov2020/processed.loom", name = "matrix")
+sce <- SingleCellExperiment(
+  list(
+    counts = t(counts_raw), 
+    logcounts= t(counts_raw)
+  )
+)
+sce
+reducedDims(sce) <- list(
+  PCA = rio::import("global_T0_plus_Tcells2567_nov2020/obsm.csv")[,1:50], 
+  UMAP = rio::import("global_T0_plus_Tcells2567_nov2020/obsm.csv")[51:52]
+)
+sce
+
+# rio::import("global_T0_plus_Tcells2567_nov2020/obs.csv")
+# rio::import("global_T0_plus_Tcells2567_nov2020/var.csv")
+
+rowdata_df <- rio::import("global_T0_plus_Tcells2567_nov2020/var.csv")
+DataFrame(rowdata_df)
+rownames(sce)
+rownames(sce) <- rowdata_df$index
+sce
+
+colData(sce) <- DataFrame(rio::import("global_T0_plus_Tcells2567_nov2020/obs.csv"))
+colnames(sce) <- paste0("cell_", seq_len(nrow(colData(sce))))
+sce
+
+scater::plotUMAP(sce, colour_by="manual_annotation")
+```
+
+
+```{r eval=FALSE}
+library("iSEE")
+iSEE(sce)
+library("iSEEu")
+modeEmpty(sce)
+```
+
+
+```{r eval=FALSE}
+
+iSEE(sce, initial = initial)
+```
+
+```{r}
+sessionInfo()
+```
+
+
