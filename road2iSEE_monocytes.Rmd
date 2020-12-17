@@ -1,0 +1,70 @@
+
+# Monocytes
+
+```{r}
+library("reticulate")
+# reticulate::py_install(c("scanpy", "python-igraph", "louvain", "loompy"))
+```
+
+
+```{python, eval=TRUE}
+import scanpy as sc
+ad_processed=sc.read_h5ad("T0_T1_Monocytes_global_post.h5ad")
+ad_processed.write_csvs("T0_T1_Monocytes_global_post")
+ad_processed.write_loom("T0_T1_Monocytes_global_post/processed.loom", write_obsm_varm=False)
+```
+
+```{r}
+library("SingleCellExperiment")
+counts_raw <- HDF5Array::HDF5Array(filepath = "T0_T1_Monocytes_global_post/processed.loom", name = "matrix")
+sce <- SingleCellExperiment(
+  list(
+    counts = t(counts_raw), 
+    logcounts= t(counts_raw)
+  )
+)
+sce
+reducedDims(sce) <- list(
+  PCA = rio::import("T0_T1_Monocytes_global_post/obsm.csv")[,1:50], 
+  UMAP = rio::import("T0_T1_Monocytes_global_post/obsm.csv")[51:52]
+)
+sce
+
+# rio::import("T0_T1_Monocytes_global_post/obs.csv")
+# rio::import("T0_T1_Monocytes_global_post/var.csv")
+
+rowdata_df <- rio::import("T0_T1_Monocytes_global_post/var.csv")
+DataFrame(rowdata_df)
+rownames(sce)
+rownames(sce) <- rowdata_df$index
+sce
+
+colData(sce) <- DataFrame(rio::import("T0_T1_Monocytes_global_post/obs.csv"))
+colnames(sce) <- paste0("cell_", seq_len(nrow(colData(sce))))
+sce
+```
+
+```{r}
+# saveRDS(sce, "sce_monocytes.RDS")
+```
+
+
+
+```{r eval=FALSE}
+library("iSEE")
+iSEE(sce)
+
+# exported configuration of panels
+
+
+# exported code for the plots
+
+
+
+```
+
+```{r}
+sessionInfo()
+```
+
+
