@@ -56,6 +56,88 @@ modeEmpty(sce)
 
 
 ```{r eval=FALSE}
+initial <- list()
+
+################################################################################
+# Settings for Reduced dimension plot 1
+################################################################################
+
+initial[["ReducedDimensionPlot1"]] <- new("ReducedDimensionPlot", Type = "UMAP", XAxis = 1L, YAxis = 2L, 
+    ColorByColumnData = "manual_annotation", ColorByFeatureNameAssay = "logcounts", 
+    ColorBySampleNameColor = "#FF0000", ShapeByColumnData = "index", 
+    SizeByColumnData = "n_genes", FacetByRow = "---", FacetByColumn = "---", 
+    ColorBy = "Column data", ColorByDefaultColor = "#000000", 
+    ColorByFeatureName = "AL669831.5", ColorByFeatureSource = "---", 
+    ColorByFeatureDynamicSource = FALSE, ColorBySampleName = "cell_1", 
+    ColorBySampleSource = "---", ColorBySampleDynamicSource = FALSE, 
+    ShapeBy = "None", SizeBy = "None", SelectionEffect = "Transparent", 
+    SelectionColor = "#FF0000", SelectionAlpha = 0.1, ZoomData = numeric(0), 
+    BrushData = list(), VisualBoxOpen = FALSE, VisualChoices = "Color", 
+    ContourAdd = FALSE, ContourColor = "#0000FF", PointSize = 1, 
+    PointAlpha = 1, Downsample = FALSE, DownsampleResolution = 200, 
+    CustomLabels = FALSE, CustomLabelsText = "cell_1", FontSize = 1, 
+    LegendPointSize = 1, LegendPosition = "Bottom", HoverInfo = TRUE, 
+    LabelCenters = FALSE, LabelCentersBy = "index", LabelCentersColor = "#000000", 
+    PanelId = 1L, PanelHeight = 500L, PanelWidth = 4L, SelectionBoxOpen = FALSE, 
+    RowSelectionSource = "---", ColumnSelectionSource = "---", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, RowSelectionType = "Active", 
+    RowSelectionSaved = 0L, ColumnSelectionDynamicSource = FALSE, 
+    ColumnSelectionType = "Active", ColumnSelectionSaved = 0L, 
+    SelectionHistory = list())
+
+################################################################################
+# Settings for Reduced dimension plot 2
+################################################################################
+
+initial[["ReducedDimensionPlot2"]] <- new("ReducedDimensionPlot", Type = "UMAP", XAxis = 1L, YAxis = 2L, 
+    ColorByColumnData = "index", ColorByFeatureNameAssay = "logcounts", 
+    ColorBySampleNameColor = "#FF0000", ShapeByColumnData = "index", 
+    SizeByColumnData = "n_genes", FacetByRow = "---", FacetByColumn = "---", 
+    ColorBy = "Feature name", ColorByDefaultColor = "#000000", 
+    ColorByFeatureName = "CD74", ColorByFeatureSource = "---", 
+    ColorByFeatureDynamicSource = FALSE, ColorBySampleName = "cell_1", 
+    ColorBySampleSource = "---", ColorBySampleDynamicSource = FALSE, 
+    ShapeBy = "None", SizeBy = "None", SelectionEffect = "Transparent", 
+    SelectionColor = "#FF0000", SelectionAlpha = 0.1, ZoomData = numeric(0), 
+    BrushData = list(), VisualBoxOpen = FALSE, VisualChoices = "Color", 
+    ContourAdd = FALSE, ContourColor = "#0000FF", PointSize = 1, 
+    PointAlpha = 1, Downsample = FALSE, DownsampleResolution = 200, 
+    CustomLabels = FALSE, CustomLabelsText = "cell_1", FontSize = 1, 
+    LegendPointSize = 1, LegendPosition = "Bottom", HoverInfo = TRUE, 
+    LabelCenters = FALSE, LabelCentersBy = "index", LabelCentersColor = "#000000", 
+    PanelId = 2L, PanelHeight = 500L, PanelWidth = 4L, SelectionBoxOpen = FALSE, 
+    RowSelectionSource = "---", ColumnSelectionSource = "---", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, RowSelectionType = "Active", 
+    RowSelectionSaved = 0L, ColumnSelectionDynamicSource = FALSE, 
+    ColumnSelectionType = "Active", ColumnSelectionSaved = 0L, 
+    SelectionHistory = list())
+
+################################################################################
+# Settings for Reduced dimension plot 3
+################################################################################
+
+initial[["ReducedDimensionPlot3"]] <- new("ReducedDimensionPlot", Type = "UMAP", XAxis = 1L, YAxis = 2L, 
+    ColorByColumnData = "index", ColorByFeatureNameAssay = "logcounts", 
+    ColorBySampleNameColor = "#FF0000", ShapeByColumnData = "index", 
+    SizeByColumnData = "n_genes", FacetByRow = "---", FacetByColumn = "---", 
+    ColorBy = "Feature name", ColorByDefaultColor = "#000000", 
+    ColorByFeatureName = "PF4", ColorByFeatureSource = "---", 
+    ColorByFeatureDynamicSource = FALSE, ColorBySampleName = "cell_1", 
+    ColorBySampleSource = "---", ColorBySampleDynamicSource = FALSE, 
+    ShapeBy = "None", SizeBy = "None", SelectionEffect = "Transparent", 
+    SelectionColor = "#FF0000", SelectionAlpha = 0.1, ZoomData = numeric(0), 
+    BrushData = list(), VisualBoxOpen = FALSE, VisualChoices = "Color", 
+    ContourAdd = FALSE, ContourColor = "#0000FF", PointSize = 1, 
+    PointAlpha = 1, Downsample = FALSE, DownsampleResolution = 200, 
+    CustomLabels = FALSE, CustomLabelsText = "cell_1", FontSize = 1, 
+    LegendPointSize = 1, LegendPosition = "Bottom", HoverInfo = TRUE, 
+    LabelCenters = FALSE, LabelCentersBy = "index", LabelCentersColor = "#000000", 
+    PanelId = 3L, PanelHeight = 500L, PanelWidth = 4L, SelectionBoxOpen = FALSE, 
+    RowSelectionSource = "---", ColumnSelectionSource = "---", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, RowSelectionType = "Active", 
+    RowSelectionSaved = 0L, ColumnSelectionDynamicSource = FALSE, 
+    ColumnSelectionType = "Active", ColumnSelectionSaved = 0L, 
+    SelectionHistory = list())
 
 iSEE(sce, initial = initial)
 ```
