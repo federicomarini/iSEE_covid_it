@@ -1,0 +1,66 @@
+
+# B cells
+
+```{r}
+library("reticulate")
+# reticulate::py_install(c("scanpy", "python-igraph", "louvain", "loompy"))
+```
+
+
+```{python, eval=TRUE}
+import scanpy as sc
+ad_processed=sc.read_h5ad("scanpy_T1_pre.h5ad")
+ad_processed.write_csvs("scanpy_T1_pre")
+ad_processed.write_loom("scanpy_T1_pre/processed.loom")
+```
+
+```{r}
+library("SingleCellExperiment")
+counts_raw <- HDF5Array::HDF5Array(filepath = "scanpy_T1_pre/processed.loom", name = "matrix")
+sce <- SingleCellExperiment(
+  list(
+    counts = t(counts_raw), 
+    logcounts= t(counts_raw)
+  )
+)
+sce
+reducedDims(sce) <- list(
+  PCA = rio::import("scanpy_T1_pre/obsm.csv")[,1:50], 
+  UMAP = rio::import("scanpy_T1_pre/obsm.csv")[51:52]
+)
+sce
+
+# rio::import("scanpy_T1_pre/obs.csv")
+# rio::import("scanpy_T1_pre/var.csv")
+
+rowdata_df <- rio::import("scanpy_T1_pre/var.csv")
+DataFrame(rowdata_df)
+rownames(sce)
+rownames(sce) <- rowdata_df$index
+sce
+
+colData(sce) <- DataFrame(rio::import("scanpy_T1_pre/obs.csv"))
+colnames(sce) <- paste0("cell_", seq_len(nrow(colData(sce))))
+sce
+
+scater::plotUMAP(sce, colour_by="manual_annotation")
+```
+
+
+```{r eval=FALSE}
+library("iSEE")
+iSEE(sce)
+library("iSEEu")
+modeEmpty(sce)
+```
+
+
+```{r eval=FALSE}
+
+```
+
+```{r}
+sessionInfo()
+```
+
+
