@@ -1,5 +1,5 @@
 
-# B cells
+# All data - post-infection
 
 ```{r}
 library("reticulate")
@@ -7,7 +7,7 @@ library("reticulate")
 ```
 
 
-```{python, eval=TRUE}
+```{python, eval=FALSE}
 import scanpy as sc
 ad_processed=sc.read_h5ad("scanpy_T1_pre.h5ad")
 ad_processed.write_csvs("scanpy_T1_pre")
