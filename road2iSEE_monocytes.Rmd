@@ -47,6 +47,9 @@ sce
 ```{r}
 # saveRDS(sce, "sce_monocytes.RDS")
 sce <- readRDS("sce_monocytes.RDS")
+
+scater::plotUMAP(sce, colour_by="manual_annotation")
+
 ```
 
 
