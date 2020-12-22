@@ -1,0 +1,58 @@
+
+# B Cells
+
+```{r}
+library("reticulate")
+# reticulate::py_install(c("scanpy", "python-igraph", "louvain", "loompy"))
+```
+
+```{python, eval=FALSE}
+import scanpy as sc
+ad_processed=sc.read_h5ad("B_cells_final_annotated.h5ad")
+ad_processed.write_csvs("B_cells_final_annotated")
+ad_processed.write_loom("B_cells_final_annotated/processed.loom", write_obsm_varm=False)
+```
+
+```{r}
+library("SingleCellExperiment")
+counts_raw <- HDF5Array::HDF5Array(filepath = "B_cells_final_annotated/processed.loom", name = "matrix")
+sce <- SingleCellExperiment(
+  list(
+    counts = t(counts_raw), 
+    logcounts= t(counts_raw)
+  )
+)
+sce
+reducedDims(sce) <- list(
+  PCA = rio::import("B_cells_final_annotated/obsm.csv")[,1:50], 
+  UMAP = rio::import("B_cells_final_annotated/obsm.csv")[51:52]
+)
+sce
+
+# rio::import("B_cells_final_annotated/obs.csv")
+# rio::import("B_cells_final_annotated/var.csv")
+
+rowdata_df <- rio::import("B_cells_final_annotated/var.csv")
+DataFrame(rowdata_df)
+rownames(sce)
+rownames(sce) <- rowdata_df$index
+sce
+
+colData(sce) <- DataFrame(rio::import("B_cells_final_annotated/obs.csv"))
+colnames(sce) <- paste0("cell_", seq_len(nrow(colData(sce))))
+sce
+
+scater::plotUMAP(sce, colour_by="manual_annotation")
+```
+
+
+```{r eval=FALSE}
+library("iSEE")
+iSEE(sce)
+```
+
+```{r}
+sessionInfo()
+```
+
+
