@@ -35,7 +35,7 @@ sce
 rowdata_df <- rio::import("B_cells_final_annotated/var.csv")
 DataFrame(rowdata_df)
 rownames(sce)
-rownames(sce) <- rowdata_df$index
+rownames(sce) <- rowdata_df$V1
 sce
 
 colData(sce) <- DataFrame(rio::import("B_cells_final_annotated/obs.csv"))
