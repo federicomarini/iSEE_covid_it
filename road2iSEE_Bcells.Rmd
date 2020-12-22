@@ -41,8 +41,15 @@ sce
 colData(sce) <- DataFrame(rio::import("B_cells_final_annotated/obs.csv"))
 colnames(sce) <- paste0("cell_", seq_len(nrow(colData(sce))))
 sce
+```
+
+
+```{r}
+# saveRDS(sce, "sce_Bcells.RDS")
+sce <- readRDS("sce_Bcells.RDS")
 
 scater::plotUMAP(sce, colour_by="manual_annotation")
+scater::plotUMAP(sce, colour_by="class_annotation")
 ```
 
 
