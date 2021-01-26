@@ -1,5 +1,19 @@
+---
+title: "Processing the T Cells dataset for using with `iSEE`"
+author:
+- name: Federico Marini^[marinif@uni-mainz.de]
+  affiliation: Institute of Medical Biostatistics, Epidemiology and Informatics ([IMBEI, Mainz](https://www.unimedizin-mainz.de/imbei/imbei/welcome-page.html?L=1))
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    theme: lumen
+---
 
-# T cells
+# From Python (AnnData) to Loom
 
 ```{r}
 library("reticulate")
@@ -13,6 +27,8 @@ ad_processed=sc.read_h5ad("T0_T1_Tcells_global_tcrdata.h5ad")
 ad_processed.write_csvs("T0_T1_Tcells_global_tcrdata")
 ad_processed.write_loom("T0_T1_Tcells_global_tcrdata/processed.loom")
 ```
+
+# From Loom to SingleCellExperiment
 
 ```{r}
 library("SingleCellExperiment")
@@ -64,6 +80,7 @@ scater::plotUMAP(sce, colour_by="manual_annotation")
 ```
 
 
+# Setting up the iSEE instance
 
 ```{r eval=FALSE}
 library("iSEE")
@@ -226,9 +243,11 @@ iSEE(sce, initial = initial)
 ```
 
 
+# Session info {-}
 
 ```{r}
 sessionInfo()
 ```
+
 
 

@@ -1,5 +1,19 @@
+---
+title: "Processing the Post-Infection dataset for using with `iSEE`"
+author:
+- name: Federico Marini^[marinif@uni-mainz.de]
+  affiliation: Institute of Medical Biostatistics, Epidemiology and Informatics ([IMBEI, Mainz](https://www.unimedizin-mainz.de/imbei/imbei/welcome-page.html?L=1))
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    theme: lumen
+---
 
-# All data - post-infection
+# From Python (AnnData) to Loom
 
 ```{r}
 library("reticulate")
@@ -13,6 +27,8 @@ ad_processed=sc.read_h5ad("scanpy_T1_pre.h5ad")
 ad_processed.write_csvs("scanpy_T1_pre")
 ad_processed.write_loom("scanpy_T1_pre/processed.loom")
 ```
+
+# From Loom to SingleCellExperiment
 
 ```{r}
 library("SingleCellExperiment")
@@ -56,6 +72,7 @@ sce <- HDF5Array::loadHDF5SummarizedExperiment("see_postinfect/")
 scater::plotUMAP(sce, colour_by="manual_annotation")
 ```
 
+# Setting up the iSEE instance
 
 ```{r eval=FALSE}
 library("iSEE")
@@ -151,6 +168,8 @@ initial[["ReducedDimensionPlot3"]] <- new("ReducedDimensionPlot", Type = "UMAP",
 
 iSEE(sce, initial = initial)
 ```
+
+# Session info {-}
 
 ```{r}
 sessionInfo()
