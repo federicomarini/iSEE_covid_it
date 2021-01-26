@@ -35,7 +35,6 @@ library("SingleCellExperiment")
 counts_raw <- HDF5Array::HDF5Array(filepath = "global_T0_plus_Tcells2567_nov2020/processed.loom", name = "matrix")
 sce <- SingleCellExperiment(
   list(
-    counts = t(counts_raw), 
     logcounts= t(counts_raw)
   )
 )

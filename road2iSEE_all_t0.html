@@ -365,7 +365,6 @@ ad_processed.write_loom(&quot;global_T0_plus_Tcells2567_nov2020/processed.loom&q
 <pre class="r"><code>counts_raw &lt;- HDF5Array::HDF5Array(filepath = &quot;global_T0_plus_Tcells2567_nov2020/processed.loom&quot;, name = &quot;matrix&quot;)
 sce &lt;- SingleCellExperiment(
   list(
-    counts = t(counts_raw), 
     logcounts= t(counts_raw)
   )
 )
@@ -373,7 +372,7 @@ sce</code></pre>
 <pre><code>## class: SingleCellExperiment 
 ## dim: 12915 48069 
 ## metadata(0):
-## assays(2): counts logcounts
+## assays(1): logcounts
 ## rownames: NULL
 ## rowData names(0):
 ## colnames: NULL
@@ -389,7 +388,7 @@ sce</code></pre>
 <pre><code>## class: SingleCellExperiment 
 ## dim: 12915 48069 
 ## metadata(0):
-## assays(2): counts logcounts
+## assays(1): logcounts
 ## rownames: NULL
 ## rowData names(0):
 ## colnames: NULL
@@ -579,7 +578,7 @@ sce</code></pre>
 <pre><code>## class: SingleCellExperiment 
 ## dim: 12915 48069 
 ## metadata(0):
-## assays(2): counts logcounts
+## assays(1): logcounts
 ## rownames(12915): AL669831.5 LINC00115 ... AL592183.1 AC240274.1
 ## rowData names(0):
 ## colnames: NULL
@@ -593,7 +592,7 @@ sce</code></pre>
 <pre><code>## class: SingleCellExperiment 
 ## dim: 12915 48069 
 ## metadata(0):
-## assays(2): counts logcounts
+## assays(1): logcounts
 ## rownames(12915): AL669831.5 LINC00115 ... AL592183.1 AC240274.1
 ## rowData names(0):
 ## colnames(48069): cell_1 cell_2 ... cell_48068 cell_48069
