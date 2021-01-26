@@ -45,8 +45,11 @@ sce
 
 
 ```{r}
-# saveRDS(sce, "sce_Bcells.RDS")
-sce <- readRDS("sce_Bcells.RDS")
+### saveRDS(sce, "sce_Bcells.RDS")
+# HDF5Array::saveHDF5SummarizedExperiment(sce, dir = "see_Bcells")
+
+# sce <- readRDS("sce_Bcells.RDS")
+sce <- HDF5Array::loadHDF5SummarizedExperiment("see_Bcells/")
 
 scater::plotUMAP(sce, colour_by="manual_annotation")
 scater::plotUMAP(sce, colour_by="class_annotation")

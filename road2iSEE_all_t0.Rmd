@@ -42,6 +42,15 @@ sce
 colData(sce) <- DataFrame(rio::import("global_T0_plus_Tcells2567_nov2020/obs.csv"))
 colnames(sce) <- paste0("cell_", seq_len(nrow(colData(sce))))
 sce
+```
+
+
+```{r}
+### saveRDS(sce, "sce_Bcells.RDS")
+# HDF5Array::saveHDF5SummarizedExperiment(sce, dir = "see_allt0")
+
+# sce <- readRDS("sce_Bcells.RDS")
+sce <- HDF5Array::loadHDF5SummarizedExperiment("see_allt0/")
 
 scater::plotUMAP(sce, colour_by="manual_annotation")
 ```

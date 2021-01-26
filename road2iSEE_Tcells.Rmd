@@ -44,19 +44,23 @@ colnames(sce) <- paste0("cell_", seq_len(nrow(colData(sce))))
 sce
 ```
 
-Remaking Fig 5b
-
-
-```{r}
-scater::plotUMAP(sce, colour_by="manual_annotation")
-
-```
-
 
 
 ```{r}
 # saveRDS(sce, "sce_monocytes.RDS")
 # sce <- readRDS("sce_monocytes.RDS")
+### saveRDS(sce, "sce_Bcells.RDS")
+# HDF5Array::saveHDF5SummarizedExperiment(sce, dir = "see_Tcells")
+
+# sce <- readRDS("sce_Tcells.RDS")
+sce <- HDF5Array::loadHDF5SummarizedExperiment("see_Tcells/")
+```
+
+Remaking Fig 5b
+
+
+```{r}
+scater::plotUMAP(sce, colour_by="manual_annotation")
 ```
 
 
