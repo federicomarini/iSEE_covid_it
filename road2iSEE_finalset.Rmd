@@ -82,6 +82,14 @@ scater::plotUMAP(sce_Tcells, colour_by="cluster_annotation")
 
 Transfer these to the server where the iSEE apps are set up and running
 
+```
+scp -r see_finalset_Bcells root@shiny.imbei.uni-mainz.de:/srv/shiny-server/iSEE_covidIT_Bcells/see_finalset_Bcells
+scp -r see_finalset_Monocytes root@shiny.imbei.uni-mainz.de:/srv/shiny-server/iSEE_covidIT_Monocytes/see_finalset_Monocytes
+scp -r see_finalset_NKcells root@shiny.imbei.uni-mainz.de:/srv/shiny-server/iSEE_covidIT_NKcells/see_finalset_NKcells
+scp -r see_finalset_Tcells root@shiny.imbei.uni-mainz.de:/srv/shiny-server/iSEE_covidIT_Tcells/see_finalset_Tcells
+```
+
+
 ```{r}
 library(iSEE)
 iSEE(sce_Bcells)
