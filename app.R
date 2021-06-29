@@ -35,9 +35,9 @@ ui <- fluidPage(
         p("Click on any of the figures below to start an instance of iSEE with configured for that dataset."),
         fluidRow(
           column(
-            width = 4,
+            width = 3,
             tags$a(
-              tags$img(src = "ss_bcells.png", alt = "powered by iSEE", align = "center", width = "100%"),
+              tags$img(src = "ss_bcells.png", alt = "bcells powered by iSEE", align = "center", width = "100%"),
               href = "http://shiny.imbei.uni-mainz.de:3838/iSEE_covidIT_Bcells"
             ),
             shiny::actionButton(
@@ -51,9 +51,9 @@ ui <- fluidPage(
             )
           ),
           column(
-            width = 4,
+            width = 3,
             tags$a(
-              tags$img(src = "ss_monocytes.png", alt = "powered by iSEE", align = "center", width = "100%"),
+              tags$img(src = "ss_monocytes.png", alt = "monocytes powered by iSEE", align = "center", width = "100%"),
               href = "http://shiny.imbei.uni-mainz.de:3838/iSEE_covidIT_Monocytes"
             ),
             shiny::actionButton(
@@ -67,13 +67,29 @@ ui <- fluidPage(
             )
           ),
           column(
-            width = 4,
+            width = 3,
             tags$a(
-              tags$img(src = "ss_tcells.png", alt = "powered by iSEE", align = "center", width = "100%"),
+              tags$img(src = "ss_nkcells.png", alt = "nkcells powered by iSEE", align = "center", width = "100%"),
+              href = "http://shiny.imbei.uni-mainz.de:3838/iSEE_covidIT_NKcells"
+            ),
+            shiny::actionButton(
+              inputId = "ab4", label = "Check out the NK Cells dataset",
+              icon = icon("database"),
+              onclick = "window.open('http://shiny.imbei.uni-mainz.de:3838/iSEE_covidIT_NKcells', '_blank')"
+            ),
+            h4(
+              "Containing",
+              tags$strong(countup(7055, duration = 9), "cells")
+            )
+          ),
+          column(
+            width = 3,
+            tags$a(
+              tags$img(src = "ss_tcells.png", alt = "tcells powered by iSEE", align = "center", width = "100%"),
               href = "http://shiny.imbei.uni-mainz.de:3838/iSEE_covidIT_Tcells"
             ),
             shiny::actionButton(
-              inputId = "ab4", label = "Check out the T Cells dataset",
+              inputId = "ab5", label = "Check out the T Cells dataset",
               icon = icon("database"),
               onclick = "window.open('http://shiny.imbei.uni-mainz.de:3838/iSEE_covidIT_Tcells', '_blank')"
             ),
@@ -85,11 +101,19 @@ ui <- fluidPage(
         ),
         fluidRow(
           column(
+            offset = 1,
+            width = 10,
+            br(), br(), br(),
+            includeMarkdown("howto_browse.md"),
+            br(), br(), br(), br()
+          )
+        ),
+
+        fluidRow(
+          column(
             width = 12,
-            h4("Lorem"),
-            p("ipsum"),
-            br(), br(), br(), br(), br(), br(), br(), hr(),
-            p("Some more info + disclaimer")
+            hr(),
+            includeMarkdown("info_disclaimer.md")
           )
         )
       )
