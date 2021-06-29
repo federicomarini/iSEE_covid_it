@@ -1,0 +1,109 @@
+---
+title: "Processing all the final set of datasets for using with `iSEE`"
+author:
+- name: Federico Marini^[marinif@uni-mainz.de]
+  affiliation: Institute of Medical Biostatistics, Epidemiology and Informatics ([IMBEI, Mainz](https://www.unimedizin-mainz.de/imbei/imbei/welcome-page.html?L=1))
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    theme: lumen
+---
+
+# From Python (AnnData) to h5 format for SingleCellExperiment
+
+Reading in, via `zellkonverter`.
+
+```{r}
+library(zellkonverter)
+
+sce_Bcells_h5ad <- readH5AD("final_set/Bcells_covid-19.h5ad")
+sce_Monocytes_h5ad <- readH5AD("final_set/Monocytes_covid-19.h5ad")
+sce_NKcells_h5ad <- readH5AD("final_set/NKcells_covid-19.h5ad")
+sce_Tcells_h5ad <- readH5AD("final_set/Tcells_covid-19.h5ad")
+```
+
+Editing the names of the reduced dimension slots for better readability
+
+```{r}
+reducedDimNames(sce_Bcells_h5ad) <- toupper(gsub(pattern = "^X_", "", reducedDimNames(sce_Bcells_h5ad)))
+reducedDimNames(sce_Monocytes_h5ad) <- toupper(gsub(pattern = "^X_", "", reducedDimNames(sce_Monocytes_h5ad)))
+reducedDimNames(sce_NKcells_h5ad) <- toupper(gsub(pattern = "^X_", "", reducedDimNames(sce_NKcells_h5ad)))
+reducedDimNames(sce_Tcells_h5ad) <- toupper(gsub(pattern = "^X_", "", reducedDimNames(sce_Tcells_h5ad)))
+
+reducedDimNames(sce_Bcells_h5ad) 
+reducedDimNames(sce_Monocytes_h5ad) 
+reducedDimNames(sce_NKcells_h5ad) 
+reducedDimNames(sce_Tcells_h5ad) 
+```
+
+Same goes for the slot X, which we can rename logcounts
+
+```{r}
+assayNames(sce_Bcells_h5ad) <- "logcounts"
+assayNames(sce_Monocytes_h5ad) <- "logcounts"
+assayNames(sce_NKcells_h5ad) <- "logcounts"
+assayNames(sce_Tcells_h5ad) <- "logcounts"
+```
+
+
+Writing back to a format that can be taken up right away as SingleCellExperiment
+
+```{r}
+HDF5Array::saveHDF5SummarizedExperiment(sce_Bcells_h5ad, dir = "see_finalset_Bcells", replace = TRUE)
+HDF5Array::saveHDF5SummarizedExperiment(sce_Monocytes_h5ad, dir = "see_finalset_Monocytes", replace = TRUE)
+HDF5Array::saveHDF5SummarizedExperiment(sce_NKcells_h5ad, dir = "see_finalset_NKcells", replace = TRUE)
+HDF5Array::saveHDF5SummarizedExperiment(sce_Tcells_h5ad, dir = "see_finalset_Tcells", replace = TRUE)
+```
+
+Test that it is correctly read in again
+
+```{r}
+sce_Bcells <- HDF5Array::loadHDF5SummarizedExperiment("see_finalset_Bcells")
+sce_Monocytes <- HDF5Array::loadHDF5SummarizedExperiment("see_finalset_Monocytes")
+sce_NKcells <- HDF5Array::loadHDF5SummarizedExperiment("see_finalset_NKcells")
+sce_Tcells <- HDF5Array::loadHDF5SummarizedExperiment("see_finalset_Tcells")
+
+sce_Bcells
+sce_Monocytes
+sce_NKcells
+sce_Tcells
+
+scater::plotUMAP(sce_Bcells, colour_by="cluster_annotation")
+scater::plotUMAP(sce_Monocytes, colour_by="cluster_annotation")
+scater::plotUMAP(sce_NKcells, colour_by="cluster_annotation")
+scater::plotUMAP(sce_Tcells, colour_by="cluster_annotation")
+```
+
+# Setting up iSEE for these datasets
+
+Transfer these to the server where the iSEE apps are set up and running
+
+```{r}
+library(iSEE)
+iSEE(sce_Bcells)
+iSEE(sce_Monocytes)
+iSEE(sce_NKcells)
+iSEE(sce_Tcells)
+```
+
+
+```{r eval=FALSE}
+
+initial <- list()
+
+
+
+iSEE(sce, initial = initial)
+```
+
+# Session info {-}
+
+```{r}
+sessionInfo()
+```
+
+
