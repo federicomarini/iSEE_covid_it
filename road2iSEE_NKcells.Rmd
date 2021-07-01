@@ -1,0 +1,333 @@
+---
+title: "Processing the NK Cells dataset for using with `iSEE`"
+author:
+- name: Federico Marini^[marinif@uni-mainz.de]
+  affiliation: Institute of Medical Biostatistics, Epidemiology and Informatics ([IMBEI, Mainz](https://www.unimedizin-mainz.de/imbei/imbei/welcome-page.html?L=1))
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    theme: lumen
+---
+
+# From Python (AnnData) to Loom
+
+```{r}
+library("reticulate")
+# reticulate::py_install(c("scanpy", "python-igraph", "louvain", "loompy"))
+```
+
+```{python, eval=FALSE}
+import scanpy as sc
+ad_processed=sc.read_h5ad("final_set/NKcells_covid-19.h5ad")
+ad_processed.write_csvs("final_set_NKcells_annotated")
+ad_processed.write_loom("final_set_NKcells_annotated/processed.loom", write_obsm_varm=False)
+```
+
+# From Loom to SingleCellExperiment
+
+```{r}
+library("SingleCellExperiment")
+counts_raw <- HDF5Array::HDF5Array(filepath = "final_set_NKcells_annotated/processed.loom", name = "matrix")
+sce <- SingleCellExperiment(
+  list(
+    logcounts= t(counts_raw)
+  )
+)
+
+sce
+reducedDims(sce) <- list(
+  PCA = rio::import("final_set_NKcells_annotated/obsm.csv")[,1:50], 
+  UMAP = rio::import("final_set_NKcells_annotated/obsm.csv")[51:52]
+)
+sce
+
+# rio::import("B_cells_final_annotated/obs.csv")
+# rio::import("B_cells_final_annotated/var.csv")
+
+rowdata_df <- rio::import("final_set_NKcells_annotated/var.csv")
+DataFrame(rowdata_df)
+rownames(sce)
+rownames(sce) <- rowdata_df$index
+sce
+
+colData(sce) <- DataFrame(rio::import("final_set_NKcells_annotated/obs.csv"))
+colnames(sce) <- paste0("cell_", seq_len(nrow(colData(sce))))
+sce
+```
+
+
+
+```{r}
+### saveRDS(sce, "sce_Bcells.RDS")
+# HDF5Array::saveHDF5SummarizedExperiment(sce, dir = "see_final_set_NKcells")
+
+# sce <- readRDS("sce_Bcells.RDS")
+sce <- HDF5Array::loadHDF5SummarizedExperiment("see_final_set_NKcells")
+
+scater::plotUMAP(sce, colour_by="manual_annotation")
+scater::plotUMAP(sce, colour_by="class_annotation")
+```
+
+# Setting up the iSEE instance
+
+```{r eval=FALSE}
+library("iSEE")
+iSEE(sce)
+```
+
+
+```{r eval=FALSE}
+
+initial <- list()
+
+################################################################################
+# Settings for Reduced dimension plot 1
+################################################################################
+
+initial[["ReducedDimensionPlot1"]] <- new("ReducedDimensionPlot", Type = "UMAP", XAxis = 1L, YAxis = 2L, 
+    FacetRowByColData = "cluster_annotation", FacetColumnByColData = "cluster_annotation", 
+    ColorByColumnData = "cluster_annotation", ColorByFeatureNameAssay = "logcounts", 
+    ColorBySampleNameColor = "#FF0000", ShapeByColumnData = "cluster_annotation", 
+    SizeByColumnData = "n_genes_by_counts", FacetRowBy = "None", 
+    FacetColumnBy = "None", ColorBy = "Column data", ColorByDefaultColor = "#000000", 
+    ColorByFeatureName = "AL669831.5", ColorByFeatureSource = "---", 
+    ColorByFeatureDynamicSource = FALSE, ColorBySampleName = "AAACCTGAGGTCGGAT-1-scSQ_2562", 
+    ColorBySampleSource = "---", ColorBySampleDynamicSource = FALSE, 
+    ShapeBy = "None", SizeBy = "None", SelectionAlpha = 0.1, 
+    ZoomData = numeric(0), BrushData = list(), VisualBoxOpen = TRUE, 
+    VisualChoices = "Color", ContourAdd = FALSE, ContourColor = "#0000FF", 
+    PointSize = 1, PointAlpha = 1, Downsample = FALSE, DownsampleResolution = 200, 
+    CustomLabels = FALSE, CustomLabelsText = "AAACCTGAGGTCGGAT-1-scSQ_2562", 
+    FontSize = 1, LegendPointSize = 1, LegendPosition = "Bottom", 
+    HoverInfo = TRUE, LabelCenters = FALSE, LabelCentersBy = "cluster_annotation", 
+    LabelCentersColor = "#000000", VersionInfo = list(iSEE = structure(list(
+        c(2L, 4L, 0L)), class = c("package_version", "numeric_version"
+    ))), PanelId = 1L, PanelHeight = 500L, PanelWidth = 2L, SelectionBoxOpen = FALSE, 
+    RowSelectionSource = "---", ColumnSelectionSource = "---", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE, 
+    RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE, 
+    SelectionHistory = list())
+
+################################################################################
+# Settings for Column data plot 1
+################################################################################
+
+initial[["ColumnDataPlot1"]] <- new("ColumnDataPlot", XAxis = "Column data", YAxis = "cluster_annotation", 
+    XAxisColumnData = "severity_time", FacetRowByColData = "cluster_annotation", 
+    FacetColumnByColData = "cluster_annotation", ColorByColumnData = "cluster_annotation", 
+    ColorByFeatureNameAssay = "logcounts", ColorBySampleNameColor = "#FF0000", 
+    ShapeByColumnData = "cluster_annotation", SizeByColumnData = "n_genes_by_counts", 
+    FacetRowBy = "None", FacetColumnBy = "None", ColorBy = "None", 
+    ColorByDefaultColor = "#000000", ColorByFeatureName = "AL669831.5", 
+    ColorByFeatureSource = "---", ColorByFeatureDynamicSource = FALSE, 
+    ColorBySampleName = "AAACCTGAGGTCGGAT-1-scSQ_2562", ColorBySampleSource = "---", 
+    ColorBySampleDynamicSource = FALSE, ShapeBy = "None", SizeBy = "None", 
+    SelectionAlpha = 0.1, ZoomData = numeric(0), BrushData = list(
+        xmin = 1.3142002632856, xmax = 2.5936430118437, ymin = 0.4, 
+        ymax = 3.5706846174549, coords_css = list(xmin = 217L, 
+            xmax = 330L, ymin = 28L, ymax = 428.487986943493), 
+        coords_img = list(xmin = 434L, xmax = 660L, ymin = 56L, 
+            ymax = 856.975973886986), img_css_ratio = list(x = 2L, 
+            y = 2L), mapping = list(x = "X", y = "Y", height = "2 * YWidth", 
+            width = "2 * XWidth", group = "interaction(X, Y)"), 
+        domain = list(left = 0.4, right = 5.6, bottom = 0.4, 
+            top = 3.6, discrete_limits = list(x = list("HD_HD", 
+                "mild_T0", "mild_T1", "severe_T0", "severe_T1"), 
+                y = list("CD56dim CD16+ effector", "CD56dim CD16+ AP-1", 
+                  "CD56bright CD16-"))), range = list(left = 272.516213613014, 
+            right = 1191.04109589041, bottom = 856.975973886986, 
+            top = 48.5943700124905), log = list(x = NULL, y = NULL), 
+        direction = "xy", brushId = "ColumnDataPlot1_Brush", 
+        outputId = "ColumnDataPlot1"), VisualBoxOpen = FALSE, 
+    VisualChoices = "Color", ContourAdd = FALSE, ContourColor = "#0000FF", 
+    PointSize = 1, PointAlpha = 1, Downsample = FALSE, DownsampleResolution = 200, 
+    CustomLabels = FALSE, CustomLabelsText = "AAACCTGAGGTCGGAT-1-scSQ_2562", 
+    FontSize = 1, LegendPointSize = 1, LegendPosition = "Bottom", 
+    HoverInfo = TRUE, LabelCenters = FALSE, LabelCentersBy = "cluster_annotation", 
+    LabelCentersColor = "#000000", VersionInfo = list(iSEE = structure(list(
+        c(2L, 4L, 0L)), class = c("package_version", "numeric_version"
+    ))), PanelId = 1L, PanelHeight = 500L, PanelWidth = 3L, SelectionBoxOpen = FALSE, 
+    RowSelectionSource = "---", ColumnSelectionSource = "---", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE, 
+    RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE, 
+    SelectionHistory = list())
+
+################################################################################
+# Settings for Reduced dimension plot 2
+################################################################################
+
+initial[["ReducedDimensionPlot2"]] <- new("ReducedDimensionPlot", Type = "UMAP", XAxis = 1L, YAxis = 2L, 
+    FacetRowByColData = "cluster_annotation", FacetColumnByColData = "cluster_annotation", 
+    ColorByColumnData = "severity_time", ColorByFeatureNameAssay = "logcounts", 
+    ColorBySampleNameColor = "#FF0000", ShapeByColumnData = "cluster_annotation", 
+    SizeByColumnData = "n_genes_by_counts", FacetRowBy = "None", 
+    FacetColumnBy = "None", ColorBy = "Column data", ColorByDefaultColor = "#000000", 
+    ColorByFeatureName = "AL669831.5", ColorByFeatureSource = "---", 
+    ColorByFeatureDynamicSource = FALSE, ColorBySampleName = "AAACCTGAGGTCGGAT-1-scSQ_2562", 
+    ColorBySampleSource = "---", ColorBySampleDynamicSource = FALSE, 
+    ShapeBy = "None", SizeBy = "None", SelectionAlpha = 0.1, 
+    ZoomData = numeric(0), BrushData = list(), VisualBoxOpen = TRUE, 
+    VisualChoices = "Color", ContourAdd = FALSE, ContourColor = "#0000FF", 
+    PointSize = 1, PointAlpha = 1, Downsample = FALSE, DownsampleResolution = 200, 
+    CustomLabels = FALSE, CustomLabelsText = "AAACCTGAGGTCGGAT-1-scSQ_2562", 
+    FontSize = 1, LegendPointSize = 1, LegendPosition = "Bottom", 
+    HoverInfo = TRUE, LabelCenters = FALSE, LabelCentersBy = "cluster_annotation", 
+    LabelCentersColor = "#000000", VersionInfo = list(iSEE = structure(list(
+        c(2L, 4L, 0L)), class = c("package_version", "numeric_version"
+    ))), PanelId = 2L, PanelHeight = 500L, PanelWidth = 2L, SelectionBoxOpen = FALSE, 
+    RowSelectionSource = "---", ColumnSelectionSource = "---", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE, 
+    RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE, 
+    SelectionHistory = list())
+
+################################################################################
+# Settings for Reduced dimension plot 3
+################################################################################
+
+initial[["ReducedDimensionPlot3"]] <- new("ReducedDimensionPlot", Type = "UMAP", XAxis = 1L, YAxis = 2L, 
+    FacetRowByColData = "cluster_annotation", FacetColumnByColData = "cluster_annotation", 
+    ColorByColumnData = "cluster_annotation", ColorByFeatureNameAssay = "logcounts", 
+    ColorBySampleNameColor = "#FF0000", ShapeByColumnData = "cluster_annotation", 
+    SizeByColumnData = "n_genes_by_counts", FacetRowBy = "None", 
+    FacetColumnBy = "None", ColorBy = "Feature name", ColorByDefaultColor = "#000000", 
+    ColorByFeatureName = "CCR7", ColorByFeatureSource = "RowDataTable1", 
+    ColorByFeatureDynamicSource = FALSE, ColorBySampleName = "AAACCTGAGGTCGGAT-1-scSQ_2562", 
+    ColorBySampleSource = "---", ColorBySampleDynamicSource = FALSE, 
+    ShapeBy = "None", SizeBy = "None", SelectionAlpha = 0.1, 
+    ZoomData = numeric(0), BrushData = list(), VisualBoxOpen = TRUE, 
+    VisualChoices = "Color", ContourAdd = FALSE, ContourColor = "#0000FF", 
+    PointSize = 1, PointAlpha = 1, Downsample = FALSE, DownsampleResolution = 200, 
+    CustomLabels = FALSE, CustomLabelsText = "AAACCTGAGGTCGGAT-1-scSQ_2562", 
+    FontSize = 1, LegendPointSize = 1, LegendPosition = "Bottom", 
+    HoverInfo = TRUE, LabelCenters = FALSE, LabelCentersBy = "cluster_annotation", 
+    LabelCentersColor = "#000000", VersionInfo = list(iSEE = structure(list(
+        c(2L, 4L, 0L)), class = c("package_version", "numeric_version"
+    ))), PanelId = 3L, PanelHeight = 500L, PanelWidth = 2L, SelectionBoxOpen = FALSE, 
+    RowSelectionSource = "---", ColumnSelectionSource = "ColumnDataPlot1", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE, 
+    RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE, 
+    SelectionHistory = list())
+
+################################################################################
+# Settings for Row data table 1
+################################################################################
+
+initial[["RowDataTable1"]] <- new("RowDataTable", Selected = "CCR7", Search = "CCR", SearchColumns = c("", 
+"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
+"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
+"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
+"", "", "", "", ""), HiddenColumns = character(0), VersionInfo = list(
+    iSEE = structure(list(c(2L, 4L, 0L)), class = c("package_version", 
+    "numeric_version"))), PanelId = 1L, PanelHeight = 500L, PanelWidth = 3L, 
+    SelectionBoxOpen = FALSE, RowSelectionSource = "---", ColumnSelectionSource = "---", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE, 
+    RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE, 
+    SelectionHistory = list())
+
+################################################################################
+# Settings for Feature assay plot 1
+################################################################################
+
+initial[["FeatureAssayPlot1"]] <- new("FeatureAssayPlot", Assay = "logcounts", XAxis = "Column data", 
+    XAxisColumnData = "cluster_annotation", XAxisFeatureName = "AL669831.5", 
+    XAxisFeatureSource = "---", XAxisFeatureDynamicSource = FALSE, 
+    YAxisFeatureName = "CCR7", YAxisFeatureSource = "RowDataTable1", 
+    YAxisFeatureDynamicSource = FALSE, FacetRowByColData = "cluster_annotation", 
+    FacetColumnByColData = "cluster_annotation", ColorByColumnData = "severity_time", 
+    ColorByFeatureNameAssay = "logcounts", ColorBySampleNameColor = "#FF0000", 
+    ShapeByColumnData = "cluster_annotation", SizeByColumnData = "n_genes_by_counts", 
+    FacetRowBy = "None", FacetColumnBy = "None", ColorBy = "None", 
+    ColorByDefaultColor = "#000000", ColorByFeatureName = "AL669831.5", 
+    ColorByFeatureSource = "---", ColorByFeatureDynamicSource = FALSE, 
+    ColorBySampleName = "AAACCTGAGGTCGGAT-1-scSQ_2562", ColorBySampleSource = "---", 
+    ColorBySampleDynamicSource = FALSE, ShapeBy = "None", SizeBy = "None", 
+    SelectionAlpha = 0.1, ZoomData = numeric(0), BrushData = list(
+        xmin = 2.8469812883999, xmax = 3.1612142637454, ymin = 2.3814371683528, 
+        ymax = 10.347771641211, coords_css = list(xmin = 635L, 
+            xmax = 712L, ymin = 31.78125, ymax = 213.78125), 
+        coords_img = list(xmin = 1270L, xmax = 1424L, ymin = 63.5625, 
+            ymax = 427.5625), img_css_ratio = list(x = 2L, y = 2L), 
+        mapping = list(x = "X", y = "Y", group = "GroupBy"), 
+        domain = list(left = 0.4, right = 3.6, bottom = -4.18250042200089, 
+            top = 10.6753571629524, discrete_limits = list(x = list(
+                "CD56dim CD16+ effector", "CD56dim CD16+ AP-1", 
+                "CD56bright CD16-"))), range = list(left = 70.7779323630137, 
+            right = 1639.04109589041, bottom = 727.483786386986, 
+            top = 48.5943700124905), log = list(x = NULL, y = NULL), 
+        direction = "xy", brushId = "FeatureAssayPlot1_Brush", 
+        outputId = "FeatureAssayPlot1"), VisualBoxOpen = FALSE, 
+    VisualChoices = "Color", ContourAdd = FALSE, ContourColor = "#0000FF", 
+    PointSize = 1, PointAlpha = 1, Downsample = FALSE, DownsampleResolution = 200, 
+    CustomLabels = FALSE, CustomLabelsText = "AAACCTGAGGTCGGAT-1-scSQ_2562", 
+    FontSize = 1, LegendPointSize = 1, LegendPosition = "Bottom", 
+    HoverInfo = TRUE, LabelCenters = FALSE, LabelCentersBy = "cluster_annotation", 
+    LabelCentersColor = "#000000", VersionInfo = list(iSEE = structure(list(
+        c(2L, 4L, 0L)), class = c("package_version", "numeric_version"
+    ))), PanelId = 1L, PanelHeight = 500L, PanelWidth = 3L, SelectionBoxOpen = FALSE, 
+    RowSelectionSource = "---", ColumnSelectionSource = "---", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE, 
+    RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE, 
+    SelectionHistory = list())
+
+################################################################################
+# Settings for Complex heatmap 1
+################################################################################
+
+initial[["ComplexHeatmapPlot1"]] <- new("ComplexHeatmapPlot", Assay = "logcounts", CustomRows = TRUE, 
+    CustomRowsText = "# CD62L\n# NKG2A\nCCR7\nCD2 \nCD52\nCD69 \nCX3CR1\nDUSP1 \nFCGR3A\nFGFBP2\nFOS\nGNLY\nGZMK\nHAVCR2\nIL32\nJUN \nJUNB \nKIR2DL1\nKIR2DL3\nKIR3DL1\nKIR3DL2\nKLRC1 \nKLRC2\nNCAM1\nNCR3\nNFKBIA \nNFKBIZ \nSELL \nTNFAIP3 \nWDR74\nXCL1", 
+    ClusterRows = TRUE, ClusterRowsDistance = "spearman", ClusterRowsMethod = "ward.D2", 
+    DataBoxOpen = FALSE, VisualChoices = "Annotations", ColumnData = "cluster_annotation", 
+    RowData = character(0), CustomBounds = FALSE, LowerBound = NA_real_, 
+    UpperBound = NA_real_, AssayCenterRows = FALSE, AssayScaleRows = FALSE, 
+    DivergentColormap = "purple < black < yellow", ShowDimNames = "Rows", 
+    LegendPosition = "Bottom", LegendDirection = "Horizontal", 
+    VisualBoxOpen = FALSE, NamesRowFontSize = 10, NamesColumnFontSize = 10, 
+    ShowColumnSelection = TRUE, OrderColumnSelection = TRUE, 
+    VersionInfo = list(iSEE = structure(list(c(2L, 4L, 0L)), class = c("package_version", 
+    "numeric_version"))), PanelId = 1L, PanelHeight = 500L, PanelWidth = 3L, 
+    SelectionBoxOpen = FALSE, RowSelectionSource = "---", ColumnSelectionSource = "---", 
+    RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE, 
+    RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE, 
+    SelectionHistory = list())
+
+################################################################################
+# Settings for Reduced dimension plot 4
+################################################################################
+
+initial[["ReducedDimensionPlot4"]] <- new("ReducedDimensionPlot", Type = "UMAP", XAxis = 1L, YAxis = 2L, 
+    FacetRowByColData = "cluster_annotation", FacetColumnByColData = "cluster_annotation", 
+    ColorByColumnData = "cluster_annotation", ColorByFeatureNameAssay = "logcounts", 
+    ColorBySampleNameColor = "#FF0000", ShapeByColumnData = "cluster_annotation", 
+    SizeByColumnData = "n_genes_by_counts", FacetRowBy = "None", 
+    FacetColumnBy = "Column data", ColorBy = "None", ColorByDefaultColor = "#000000", 
+    ColorByFeatureName = "AL669831.5", ColorByFeatureSource = "---", 
+    ColorByFeatureDynamicSource = FALSE, ColorBySampleName = "AAACCTGAGGTCGGAT-1-scSQ_2562", 
+    ColorBySampleSource = "---", ColorBySampleDynamicSource = FALSE, 
+    ShapeBy = "None", SizeBy = "None", SelectionAlpha = 0.1, 
+    ZoomData = numeric(0), BrushData = list(), VisualBoxOpen = TRUE, 
+    VisualChoices = c("Color", "Facet"), ContourAdd = FALSE, 
+    ContourColor = "#0000FF", PointSize = 1, PointAlpha = 1, 
+    Downsample = FALSE, DownsampleResolution = 200, CustomLabels = FALSE, 
+    CustomLabelsText = "AAACCTGAGGTCGGAT-1-scSQ_2562", FontSize = 1, 
+    LegendPointSize = 1, LegendPosition = "Bottom", HoverInfo = TRUE, 
+    LabelCenters = FALSE, LabelCentersBy = "cluster_annotation", 
+    LabelCentersColor = "#000000", VersionInfo = list(iSEE = structure(list(
+        c(2L, 4L, 0L)), class = c("package_version", "numeric_version"
+    ))), PanelId = 4L, PanelHeight = 500L, PanelWidth = 6L, SelectionBoxOpen = FALSE, 
+    RowSelectionSource = "---", ColumnSelectionSource = "FeatureAssayPlot1", 
+    DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE, 
+    RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE, 
+    SelectionHistory = list())
+```
+
+# Session info {-}
+
+```{r}
+sessionInfo()
+```
+
+
